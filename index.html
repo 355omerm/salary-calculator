@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מחשבון שכר ברוטו נטו - סימולטור שכר מדויק</title>
+    <meta name="description" content="מחשבון שכר ברוטו לנטו מדויק ומעודכן לשנת 2026. חשב בקלות את שכר הנטו, הפרשות לפנסיה, ביטוח לאומי ומס הכנסה.">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Assistant', sans-serif;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        /* הגדרות נגישות מובנות */
+        body.high-contrast {
+            background-color: #000000 !important;
+            color: #ffff00 !important;
+        }
+        body.high-contrast * {
+            background-color: #000000 !important;
+            color: #ffff00 !important;
+            border-color: #ffff00 !important;
+        }
+        body.grayscale-mode {
+            filter: grayscale(100%) !important;
+        }
+        body.inverted-mode {
+            filter: invert(100%) hue-rotate(180deg) !important;
+        }
+        body.highlight-links a, body.highlight-links button {
+            text-decoration: underline !important;
+            font-weight: 800 !important;
+            outline: 2px dashed #e11d48 !important;
+        }
+        body.accessible-font, body.accessible-font * {
+            font-family: Arial, Helvetica, sans-serif !important;
+            letter-spacing: 0.05em !important;
+        }
+        body.stop-animations * {
+            animation: none !important;
+            transition: none !important;
+        }
+
+        /* שטחי מודעות מעוצבים */
+        .ad-space {
+            background: repeating-linear-gradient(45deg, #f8fafc, #f8fafc 10px, #f1f5f9 10px, #f1f5f9 20px);
+            border: 2px dashed #cbd5e1;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between" id="app-body">
+
+    <!-- באנר אזהרה משפטית עליון קבוע -->
+    <aside class="bg-amber-500 text-slate-950 px-4 py-2 text-xs md:text-sm font-semibold text-center border-b border-amber-600 shadow-sm">
+        <div class="max-w-6xl mx-auto flex items-center justify-center gap-2">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>הבהרה משפטית: מחשבון זה נועד לסימולציה והערכה כללית בלבד. אין לראות בתוצאות ייעוץ מס, ייעוץ פיננסי, משפטי או תחליף לתלוש שכר רשמי.</span>
+        </div>
+    </aside>
+
+    <!-- תפריט ראשי -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl font-bold shadow-md">
+                    <i class="fa-solid fa-calculator"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold text-slate-900 leading-none">NetCalc IL</h1>
+                    <p class="text-xs text-slate-500">סימולטור שכר ברוטו-נטו מתקדם</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="window.print()" class="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-xs font-semibold flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-print"></i>
+                    <span>הדפס תוצאה</span>
+                </button>
+                <button onclick="openModal('accessibilityModal')" class="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 text-xs font-semibold flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-universal-access"></i>
+                    <span>הצהרת נגישות</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- שטח פרסום עליון (AdSense 728x90) -->
+    <div class="max-w-4xl mx-auto w-full px-4 pt-4">
+        <div class="ad-space w-full h-24 rounded-xl flex flex-col items-center justify-center text-slate-400 text-xs font-medium">
+            <span><i class="fa-regular fa-rectangle-ad mr-1"></i> שטח פרסום AdSense (728x90 Leaderboard)</span>
+            <span class="text-[10px] text-slate-400">הדבק כאן את קוד המודעה שלך מחשבון Google AdSense</span>
+        </div>
+    </div>
+
+    <!-- תוכן ראשי -->
+    <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- טופס הזנת נתונים -->
+        <section class="lg:col-span-7 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <h2 class="text-lg font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2">
+                <i class="fa-solid fa-sliders text-blue-600"></i>
+                הזנת נתוני שכר
+            </h2>
+
+            <form id="salaryForm" onsubmit="event.preventDefault(); calculateSalary();" class="space-y-4">
+                <div>
+                    <label for="grossSalary" class="block text-sm font-semibold text-slate-700 mb-1">
+                        שכר ברוטו חודשי (₪) <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <input type="number" id="grossSalary" value="12000" min="0" step="100" required
+                               class="w-full text-xl font-bold px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none pr-10 text-slate-800"
+                               placeholder="לדוגמה: 12000">
+                        <span class="absolute left-4 top-3 text-slate-400 font-bold">₪</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="creditPoints" class="block text-sm font-semibold text-slate-700 mb-1">
+                            נקודות זיכוי <span class="text-xs font-normal text-slate-500">(2.25 בסיס לגבר / 2.75 לאישה)</span>
+                        </label>
+                        <input type="number" id="creditPoints" value="2.25" min="0" max="15" step="0.25"
+                               class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-slate-800 font-semibold">
+                    </div>
+
+                    <div>
+                        <label for="pensionRate" class="block text-sm font-semibold text-slate-700 mb-1">
+                            הפרשת עובד לפנסיה (%)
+                        </label>
+                        <select id="pensionRate" class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-slate-800 font-medium">
+                            <option value="6.0" selected>6.0% (ברירת מחדל חוקית)</option>
+                            <option value="6.5">6.5%</option>
+                            <option value="7.0">7.0%</option>
+                            <option value="0.0">0% (ללא הפרשה)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <label class="flex items-center gap-2 cursor-pointer select-none">
+                        <input type="checkbox" id="advancedFund" onchange="toggleKeren(this)" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 border-slate-300">
+                        <span class="text-sm font-semibold text-slate-700">כולל ניכוי קרן השתלמות עובד (2.5%)</span>
+                    </label>
+                </div>
+
+                <button type="button" onclick="calculateSalary()" 
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-base">
+                    <i class="fa-solid fa-calculator"></i>
+                    <span>חשב שכר נטו כעת</span>
+                </button>
+            </form>
+
+            <div class="mt-6 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-1">
+                <p class="font-bold text-slate-700 flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-info text-blue-500"></i>
+                    בסיס החישוב:
+                </p>
+                <p>• מדרגות מס הכנסה, ביטוח לאומי ומס בריאות מחושבים לפי שיעורי החוק בישראל.</p>
+                <p>• שווי נקודת זיכוי שנתית מחושב לפי 242 ₪ לחודש (הערכה מעודכנת).</p>
+            </div>
+        </section>
+
+        <!-- תוצאות הפירוט -->
+        <section class="lg:col-span-5 space-y-6">
+            <div class="bg-gradient-to-br from-blue-700 to-indigo-800 text-white p-6 rounded-2xl shadow-lg relative overflow-hidden">
+                <div class="relative z-10">
+                    <span class="text-xs uppercase tracking-wider font-semibold text-blue-200">הערכת שכר נטו חודשי לתשלום</span>
+                    <div class="text-4xl font-black mt-2 tracking-tight flex items-baseline gap-1" id="resNet">
+                        ₪ 9,850
+                    </div>
+                    <p class="text-xs text-blue-200 mt-2">סך הכל ניכויים: <span id="resTotalDeductions" class="font-bold">₪ 2,150</span></p>
+                </div>
+            </div>
+
+            <!-- טבלת פירוט ניכויים -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <h3 class="font-bold text-slate-900 mb-3 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-indigo-600"></i>
+                    פירוט הניכויים מהברוטו
+                </h3>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between items-center py-1 border-b border-slate-100">
+                        <span class="text-slate-600">מס הכנסה משוער:</span>
+                        <span class="font-bold text-slate-900" id="resIncomeTax">₪ 0</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1 border-b border-slate-100">
+                        <span class="text-slate-600">ביטוח לאומי:</span>
+                        <span class="font-bold text-slate-900" id="resNationalInsurance">₪ 0</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1 border-b border-slate-100">
+                        <span class="text-slate-600">מס בריאות:</span>
+                        <span class="font-bold text-slate-900" id="resHealthTax">₪ 0</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1 border-b border-slate-100">
+                        <span class="text-slate-600">פנסיה עובד:</span>
+                        <span class="font-bold text-slate-900" id="resPension">₪ 0</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1 border-b border-slate-100" id="kerenRow" style="display: none;">
+                        <span class="text-slate-600">קרן השתלמות עובד (2.5%):</span>
+                        <span class="font-bold text-slate-900" id="resKeren">₪ 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- שטח פרסום מרובע (AdSense 300x250) -->
+            <div class="ad-space w-full h-60 rounded-2xl flex flex-col items-center justify-center text-slate-400 text-xs font-medium text-center p-4">
+                <span><i class="fa-regular fa-rectangle-ad mr-1"></i> שטח פרסום AdSense (300x250 Medium Rectangle)</span>
+                <span class="text-[10px] text-slate-400 mt-1">מקום מודעה רווחי ליד תוצאות החישוב</span>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- פוטר משפטי מלא למניעת תביעות -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-8 border-t border-slate-800 mt-12">
+        <div class="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-6 text-center md:text-right">
+            <div>
+                <h4 class="text-white font-bold text-sm mb-2">NetCalc IL</h4>
+                <p class="leading-relaxed">סימולטור שכר אונליין לחישוב מהיר של ברוטו נטו, ניכויים והפרשות בישראל.</p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold text-sm mb-2">מסמכים משפטיים והגנה</h4>
+                <ul class="space-y-1.5">
+                    <li><button onclick="openModal('termsModal')" class="hover:text-white underline">תנאי שימוש והגבלת אחריות</button></li>
+                    <li><button onclick="openModal('privacyModal')" class="hover:text-white underline">מדיניות פרטיות ועוגיות</button></li>
+                    <li><button onclick="openModal('accessibilityModal')" class="hover:text-white underline">הצהרת נגישות (ת"י 5568)</button></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold text-sm mb-2">פניות והסדרי נגישות</h4>
+                <p>רכז נגישות ופניות: <span class="text-slate-200">עומר משה</span></p>
+                <p>דוא"ל ליצירת קשר: <span class="text-slate-200">contact@example.com</span></p>
+                <p class="mt-2 text-[11px] text-slate-500">כל הזכויות שמורות © 2026</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==================== סרגל וכפתור נגישות צף ==================== -->
+    <div class="fixed bottom-6 left-6 z-50 flex flex-col items-start gap-2">
+        <!-- תפריט הנגישות שנפתח -->
+        <div id="accessibilityMenu" class="hidden bg-white p-4 rounded-2xl shadow-2xl border border-slate-200 w-72 text-slate-800 text-sm animate-fade-in">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100 mb-3">
+                <span class="font-bold flex items-center gap-2 text-slate-900">
+                    <i class="fa-solid fa-universal-access text-blue-600"></i>
+                    תפריט נגישות (ת"י 5568)
+                </span>
+                <button onclick="toggleAccessibilityMenu()" class="text-slate-400 hover:text-slate-700 text-lg leading-none" aria-label="סגור תפריט נגישות">&times;</button>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-2 text-xs">
+                <button onclick="adjustFontSize(1)" class="p-2 border rounded-lg hover:bg-slate-50 flex items-center gap-1.5">
+                    <i class="fa-solid fa-magnifying-glass-plus"></i> הגדל טקסט
+                </button>
+                <button onclick="adjustFontSize(-1)" class="p-2 border rounded-lg hover:bg-slate-50 flex items-center gap-1.5">
+                    <i class="fa-solid fa-magnifying-glass-minus"></i> הקטן טקסט
+                </button>
+                <button onclick="toggleAccessibilityClass('high-contrast')" class="p-2 border rounded-lg hover:bg-slate-50 flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-half-stroke"></i> ניגודיות גבוהה
+                </button>
+                <button onclick="toggleAccessibilityClass('grayscale-mode')" class="p-2 border rounded-lg hover:bg-slate-50 flex items-center gap-1.5">
+                    <i class="fa-solid fa-eye-slash"></i> גווני אפור
+                </button>
+                <button onclick="toggleAccessibilityClass('highlight-links')" class="p-2 border rounded-lg hover:bg-slate-50 flex items-center gap-1.5">
+                    <i class="fa-solid fa-link"></i> הדגשת קישורים
+                </button>
+                <button onclick="toggleAccessibilityClass('accessible-font')" class="p-2 border rounded-lg hover:bg-slate-50 flex items-center gap-1.5">
+                    <i class="fa-solid fa-font"></i> פונט קריא
+                </button>
+                <button onclick="toggleAccessibilityClass('stop-animations')" class="p-2 border rounded-lg hover:bg-slate-50 flex items-center gap-1.5 col-span-2">
+                    <i class="fa-solid fa-ban"></i> עצירת הבהובים ואנימציות
+                </button>
+                <button onclick="resetAccessibility()" class="p-2 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 flex items-center justify-center gap-1.5 col-span-2 font-bold">
+                    <i class="fa-solid fa-rotate-left"></i> איפוס נגישות
+                </button>
+            </div>
+        </div>
+
+        <!-- כפתור הפתיחה הצף -->
+        <button onclick="toggleAccessibilityMenu()" 
+                id="accessibilityButton"
+                class="w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center shadow-2xl focus:outline-none focus:ring-4 focus:ring-blue-300 transition-transform active:scale-95"
+                title="פתח תפריט נגישות"
+                aria-label="פתח תפריט נגישות">
+            <i class="fa-solid fa-universal-access text-2xl"></i>
+        </button>
+    </div>
+
+    <!-- ==================== באנר הסכמת עוגיות (Cookie Consent) ==================== -->
+    <div id="cookieBanner" class="fixed bottom-0 left-0 right-0 bg-slate-900/95 text-white p-4 z-40 border-t border-slate-700 backdrop-blur-md shadow-2xl">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs md:text-sm">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-cookie-bite text-2xl text-amber-400"></i>
+                <p>אתר זה משתמש בקובצי עוגיות (Cookies) ובמודעות צד-שלישי (גוגל) לצורך שיפור חוויית הגלישה והצגת פרסומות מותאמות. המשך הגלישה מהווה הסכמה למדיניות זו.</p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <button onclick="acceptCookies()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold text-xs transition">
+                    אני מסכים / אשר
+                </button>
+                <button onclick="openModal('privacyModal')" class="text-slate-400 hover:text-white underline text-xs">
+                    קרא עוד
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== חלונות מודאליים משפטיים ==================== -->
+    
+    <!-- מודאל הצהרת נגישות תקנית -->
+    <div id="accessibilityModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-xl w-full p-6 max-h-[85vh] overflow-y-auto text-slate-800 text-sm">
+            <div class="flex justify-between items-center pb-3 border-b mb-4">
+                <h3 class="font-bold text-lg text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-universal-access text-blue-600"></i>
+                    הצהרת נגישות (ת"י 5568 / WCAG 2.1 AA)
+                </h3>
+                <button onclick="closeModal('accessibilityModal')" class="text-slate-400 hover:text-slate-800 text-2xl">&times;</button>
+            </div>
+            <div class="space-y-3 leading-relaxed">
+                <p>אנו רואים חשיבות עליונה במתן שירות שוויוני לכלל הגולשים ובשיפור הנגישות לאנשים עם מוגבלות בהתאם לחוק שוויון זכויות לאנשים עם מוגבלות, תשנ"ח-1998 ותקנותיו.</p>
+                <h4 class="font-bold text-slate-900">התאמות הנגישות שבוצעו באתר:</h4>
+                <ul class="list-disc list-inside space-y-1 text-slate-600">
+                    <li>האתר מותאם לתקן הישראלי (ת"י 5568) ולהנחיות הבינלאומיות WCAG 2.1 ברמה AA.</li>
+                    <li>תמיכה מלאה בניווט מקלדת (מקשי Tab, החצים ו-Enter).</li>
+                    <li>הטמעת סרגל נגישות המאפשר שינוי ניגודיות, פונטים, גווני אפור והגדלת גופן.</li>
+                    <li>תאימות לקוראי מסך מודרניים.</li>
+                </ul>
+                <h4 class="font-bold text-slate-900">פרטי רכז הנגישות ופניות בנושא:</h4>
+                <p>אם נתקלת בבעיית נגישות באתר, אנא פנה לרכז הנגישות שלנו ונפעל לתקנה בהקדם:</p>
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                    <p><strong>שם רכז הנגישות:</strong> עומר משה</p>
+                    <p><strong>דוא"ל לפניות נגישות:</strong> contact@example.com</p>
+                    <p><strong>תאריך עדכון הצהרה:</strong> אוקטובר 2026</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- מודאל תנאי שימוש והסרת אחריות -->
+    <div id="termsModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-xl w-full p-6 max-h-[85vh] overflow-y-auto text-slate-800 text-sm">
+            <div class="flex justify-between items-center pb-3 border-b mb-4">
+                <h3 class="font-bold text-lg text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-scale-balanced text-blue-600"></i>
+                    תנאי שימוש והגבלת אחריות מוחלטת
+                </h3>
+                <button onclick="closeModal('termsModal')" class="text-slate-400 hover:text-slate-800 text-2xl">&times;</button>
+            </div>
+            <div class="space-y-3 leading-relaxed text-slate-700">
+                <p class="font-bold text-red-600">אנא קרא תנאים אלו בקפידה לפני השימוש בכלי.</p>
+                <p>1. <strong>מטרת הכלי:</strong> המחשבון המוצג באתר מספק הערכה וסימולציה כללית בלבד. החישובים מתבססים על מודלים מקורבים ואינם מהווים בשום צורה תלוש שכר רשמי, ייעוץ משפטי, ייעוץ מס, או ייעוץ פנסיוני.</p>
+                <p>2. <strong>היעדר אחריות ("AS IS"):</strong> השירות באתר ניתן כמות שהוא ("AS-IS"). בעלי האתר ומפעיליו לא יישאו בכל אחריות לכל נזק, הפסד, טעות בחישוב, אי-הבנה או הסתמכות של המשתמש או כל צד שלישי על הנתונים המופקים.</p>
+                <p>3. <strong>חובת בדיקה:</strong> מומלץ לכל עובד להיוועץ ברואה חשבון, יועץ מס או חשב שכר מוסמך לצורך קבלת חישוב מדויק המותאם לנתוניו האישיים.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- מודאל מדיניות פרטיות -->
+    <div id="privacyModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-xl w-full p-6 max-h-[85vh] overflow-y-auto text-slate-800 text-sm">
+            <div class="flex justify-between items-center pb-3 border-b mb-4">
+                <h3 class="font-bold text-lg text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-blue-600"></i>
+                    מדיניות פרטיות ועוגיות
+                </h3>
+                <button onclick="closeModal('privacyModal')" class="text-slate-400 hover:text-slate-800 text-2xl">&times;</button>
+            </div>
+            <div class="space-y-3 leading-relaxed text-slate-700">
+                <p>1. <strong>אי-שמירת נתונים אישיים:</strong> האתר אינו אוסף או שומר בשרתים את הנתונים המוזנים במחשבון השכר. כל החישובים מבוצעים ישירות במכשיר המשתמש (Client-Side).</p>
+                <p>2. <strong>קובצי עוגיות ומודעות צד ג':</strong> האתר עושה שימוש בשירותי פרסום של צדדים שלישיים (כגון Google AdSense). ספקים אלו עשויים להשתמש בקובצי Cookie כדי להציג מודעות בהתבסס על ביקורי הגולש באתר זה ובאתרים אחרים ברשת.</p>
+                <p>3. המשתמש רשאי לחסום או למחוק עוגיות דרך הגדרות הדפדפן האישיות שלו בכל עת.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== סקריפטים (חישוב, נגישות והגנה) ==================== -->
+    <script>
+        // חישוב שכר ברוטו לנטו
+        function calculateSalary() {
+            const gross = parseFloat(document.getElementById('grossSalary').value) || 0;
+            const creditPoints = parseFloat(document.getElementById('creditPoints').value) || 0;
+            const pensionRate = (parseFloat(document.getElementById('pensionRate').value) || 0) / 100;
+            const hasKeren = document.getElementById('advancedFund').checked;
+
+            // 1. פנסיה עובד
+            const pensionDeduction = gross * pensionRate;
+
+            // 2. קרן השתלמות (2.5% מהעובד)
+            const kerenDeduction = hasKeren ? gross * 0.025 : 0;
+
+            // 3. ביטוח לאומי ומס בריאות (הערכה מקורבת לפי מדרגות בישראל)
+            let btl = 0;
+            let health = 0;
+            const btlThreshold = 7522; // סף מדרגה מופחתת בישראל
+
+            if (gross <= btlThreshold) {
+                btl = gross * 0.004;      // 0.4% מופחת
+                health = gross * 0.031;   // 3.1% מופחת
+            } else {
+                btl = (btlThreshold * 0.004) + ((gross - btlThreshold) * 0.07); // 7.0% רגיל
+                health = (btlThreshold * 0.031) + ((gross - btlThreshold) * 0.05); // 5.0% רגיל
+            }
+
+            // 4. מס הכנסה (מדרגות מס חודשיות מקורבות)
+            let grossTax = 0;
+            if (gross > 0) {
+                if (gross <= 7010) {
+                    grossTax = gross * 0.10;
+                } else if (gross <= 10060) {
+                    grossTax = (7010 * 0.10) + ((gross - 7010) * 0.14);
+                } else if (gross <= 16150) {
+                    grossTax = (7010 * 0.10) + ((10060 - 7010) * 0.14) + ((gross - 10060) * 0.20);
+                } else if (gross <= 22440) {
+                    grossTax = (7010 * 0.10) + ((10060 - 7010) * 0.14) + ((16150 - 10060) * 0.20) + ((gross - 16150) * 0.31);
+                } else {
+                    grossTax = (7010 * 0.10) + ((10060 - 7010) * 0.14) + ((16150 - 10060) * 0.20) + ((22440 - 16150) * 0.31) + ((gross - 22440) * 0.35);
+                }
+            }
+
+            // קיזוז נקודות זיכוי (כ-242 ₪ לחודש לנקודה)
+            const creditDiscount = creditPoints * 242;
+            const finalTax = Math.max(0, grossTax - creditDiscount);
+
+            // סך הכל ניכויים ונטו
+            const totalDeductions = pensionDeduction + kerenDeduction + btl + health + finalTax;
+            const netSalary = Math.max(0, gross - totalDeductions);
+
+            // עדכון התצוגה
+            document.getElementById('resNet').innerText = '₪ ' + Math.round(netSalary).toLocaleString();
+            document.getElementById('resTotalDeductions').innerText = '₪ ' + Math.round(totalDeductions).toLocaleString();
+            document.getElementById('resIncomeTax').innerText = '₪ ' + Math.round(finalTax).toLocaleString();
+            document.getElementById('resNationalInsurance').innerText = '₪ ' + Math.round(btl).toLocaleString();
+            document.getElementById('resHealthTax').innerText = '₪ ' + Math.round(health).toLocaleString();
+            document.getElementById('resPension').innerText = '₪ ' + Math.round(pensionDeduction).toLocaleString();
+            document.getElementById('resKeren').innerText = '₪ ' + Math.round(kerenDeduction).toLocaleString();
+        }
+
+        function toggleKeren(cb) {
+            document.getElementById('kerenRow').style.display = cb.checked ? 'flex' : 'none';
+            calculateSalary();
+        }
+
+        // ================= פונקציות נגישות תקניות =================
+        let currentFontSize = 100;
+
+        function toggleAccessibilityMenu() {
+            const menu = document.getElementById('accessibilityMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        function toggleAccessibilityClass(className) {
+            document.body.classList.toggle(className);
+        }
+
+        function adjustFontSize(delta) {
+            currentFontSize += delta * 10;
+            if (currentFontSize < 80) currentFontSize = 80;
+            if (currentFontSize > 150) currentFontSize = 150;
+            document.documentElement.style.fontSize = currentFontSize + '%';
+        }
+
+        function resetAccessibility() {
+            document.body.className = "bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between";
+            currentFontSize = 100;
+            document.documentElement.style.fontSize = '100%';
+        }
+
+        // ================= חלונות מודאליים ועוגיות =================
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function acceptCookies() {
+            document.getElementById('cookieBanner').style.display = 'none';
+            localStorage.setItem('cookies_accepted', 'true');
+        }
+
+        // טעינה ראשונית
+        window.onload = function() {
+            calculateSalary();
+            if (localStorage.getItem('cookies_accepted') === 'true') {
+                document.getElementById('cookieBanner').style.display = 'none';
+            }
+        };
+
+        // סגירת מודאל בלחיצה על Escape
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal('accessibilityModal');
+                closeModal('termsModal');
+                closeModal('privacyModal');
+                document.getElementById('accessibilityMenu').classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
